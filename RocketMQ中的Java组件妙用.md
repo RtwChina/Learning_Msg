@@ -4,6 +4,8 @@
 
 ​    
 
+[TOC]
+
 # Atomic
 
 1. 在ProcessQueue中用于对ProcessQueue的消息计数。
@@ -116,3 +118,10 @@
 
 
 
+# **CountDownLatch**
+
+1. RocketMQ中一般用来做同步操作。
+   - 在任务中存放入一个数值为一的CountDownLatch(1)的闭锁。
+   - 将任务放到线程池中执行，原线程在外部调用CountDownLatch##await进行等待同步
+   - 任务执行完毕后 CountDownLatch##countDown 来表示操作完成。
+   - 然后原线程等待释放，跑下去咯。
