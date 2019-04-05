@@ -1,4 +1,4 @@
-**RocketMQ消息消费 关键点**
+**RocketMQ长轮询、负载均衡、事务消息、零拷贝**
 
 标签：【RocketMQ】
 
@@ -107,19 +107,9 @@
 
 
 
-# 3. Netty线程的消息拉取
-
-![消息消费的网络过程](http://rtt-picture.oss-cn-hangzhou.aliyuncs.com/2019-03-14-143236.png)
-
-- 可以发现RocketMQ对Netty的应用非常成熟，在channelRead中拿到请求后经过编解码立马就将真正处理的任务放到应用线程池中。做到了极大的高效。
 
 
-
-
-
-
-
-# 4. 零拷贝
+# 3. 零拷贝
 
 
 
@@ -135,7 +125,7 @@ PullMessageProcessor##processRequest：384行
 
 
 
-# 5. 事务消息
+# 4. 事务消息
 
 ![RocketMQ的事务消息](http://rtt-picture.oss-cn-hangzhou.aliyuncs.com/2019-03-25-013218.png)
 
@@ -149,7 +139,7 @@ PullMessageProcessor##processRequest：384行
 
 
 
-## 5.1 交互设计
+## 4.1 交互设计
 
 ![RocketMQ分布式事务交互设计和类设计](http://rtt-picture.oss-cn-hangzhou.aliyuncs.com/2019-03-27-013204.png)
 
@@ -176,7 +166,7 @@ PullMessageProcessor##processRequest：384行
 
 **补充**：对于过程3，如果执行本地事务突然宕机了（相当本地事务执行结果返回unknow），则和broker未收到确认消息的情况一样处理。
 
-## 5.2 实现
+## 4.2 实现
 
 1. 实现TransactionListener接口，自定义方法。
    - TransactionCheckListener接口定义了检查本地事务状态的行为。在Producer发送消息成功之后，会调用executeLocalTransaction来检查本地事务是否成功提交
@@ -208,7 +198,7 @@ producer.sendMessageInTransaction(msg, null);
 
 
 
-## 5.3 源码分析
+## 4.3 源码分析
 
 1. Broker中会收到事务消息，具体是在SendMessageProcessor##processRequest-》》sendMessage。
 

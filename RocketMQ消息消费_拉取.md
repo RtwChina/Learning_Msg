@@ -1,4 +1,4 @@
-**RocketMQ消息消费_1**
+**RocketMQ消息消费_拉取 & Broker消息处理**
 
 标签：【RocketMQ】
 
@@ -319,3 +319,24 @@ P143
 7. Step7 :然后根据消息拉取时间间隔 再次进行拉取。
 
 ![RocketMQ拉取流程](http://rtt-picture.oss-cn-hangzhou.aliyuncs.com/2019-02-23-061350.jpg)
+
+
+
+# 5. Broker收到消息的处理
+
+![Broker收到拉取消息的处理](http://rtt-picture.oss-cn-hangzhou.aliyuncs.com/2019-04-04-121723.png)
+
+从上面的简易时序图中可以看到Broker端Pull消息的主要关键点如下：
+
+1. Pull消息的业务处理器—PullMessageProcessor的processRequest为处理拉取消息请求的入口，在设置reponse返回结果中的opaque值后，就完成一些前置的校验（Broker是否可读、Topic/ConsumerGroup是否存在、读取队列Id是否在Topic配置的队列范围数内）；
+2. 根据“ConsumerGroup”、“Topic”、“queueId”和“offset”这些参数来调用MessageStore实例的getMessage()方法来产尝试读取Broker端的消息；
+3. 其中，通过findConsumeQueue()方法，获取逻辑消费队列—ConsumeQueue；
+4. 根据offset与逻辑消费队列中的maxOffset、minOffset的比较，来设置状态值status，同时计算出下次Pull消息的开始偏移量值—nextBeginOffset，然后通过MappedFile的方式获取ConsumeQueue的Buffer映射结果值；
+5. 根据算出来的offsetPy（物理偏移量值）和sizePy（消息的物理大小），从commitLog获取对应消息的Buffer映射结果值，并填充至GetMessageResult返回对象，并设置返回结果（状态/下次其实偏移量/maxOffset/minOffset）后return；
+6. 根据isTransferMsgByHeap的设置情况（默认为true），选择下面两种方式之一来真正读取GetMessageResult的消息内容并返回至Consumer端；
+   - **方式1**：使用JDK NIO的ByteBuffer，循环地读取存有消息内容的messageBufferList至堆内内存中，返回byte[]字节数组，并设置到响应的body中；然后，通过RPC通信组件—NettyRemotingServer发送响应至Consumer端；
+   - **方式2**：采用基于Zero-Copy的Netty组件的FileRegion，其包装的“FileChannel.tranferTo”实现文件传输，可以直接将文件缓冲区的数据发送至通信目标通道Channel中，避免了通过循环write方式导致的内存拷贝开销，这种方式性能上更优；
+7. 在PullMessageProcessor业务处理器的最后，提交并持久化消息消费的offset偏移量进
+
+
+

@@ -1,6 +1,6 @@
-**RocketMQ网络交互**
+**RocketMQ网络交互**(Netty)
 
-标签：【RocketMQ】
+标签：【RocketMQ】【Netty】
 
 
 
@@ -67,7 +67,7 @@
 
 
 
-# 源码分析
+# 3. 源码分析
 
 
 
@@ -142,7 +142,19 @@
 
 
 
-# RocketMQ线程模型
+# 4. RocketMQ线程模型
+
+
+
+## 4.1 Netty线程的消息拉取
+
+![消息消费的网络过程](http://rtt-picture.oss-cn-hangzhou.aliyuncs.com/2019-03-14-143236.png)
+
+- 可以发现RocketMQ对Netty的应用非常成熟，在channelRead中拿到请求后经过编解码立马就将真正处理的任务放到应用线程池中。做到了极大的高效。
+
+
+
+## 4.2 线程的运用
 
 ![MQ的线程模型](http://rtt-picture.oss-cn-hangzhou.aliyuncs.com/2019-04-04-014300.png)
 
@@ -153,11 +165,9 @@
 
 
 
-# 消息发送Netty流程
+# 5. 消息发送Netty流程
 
 1. 消息发送分为同步，异步，一次性，入口是在NettyRemotingClient##invoke**
-
-
 
 ### 异步发送
 

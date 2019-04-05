@@ -40,7 +40,7 @@
 # Timer
 
 1. 先明确一下Timer:
-   - 内部实现很简单，维护一个数组，该数组中存放的是TimerTask(即runnable)，然后该数组使用了堆排序！！。也就是说第一个数组一定是最小的（可根据TimerTask下一次运行的时间进行排序）,
+   - 内部实现很简单，维护一个数组，该数组中存放的是TimerTask(即runnable)，然后该数组使用了==堆排序==！！。也就是说第一个数组一定是最小的（可根据TimerTask下一次运行的时间进行排序）,
    - 起一个单线程，疯狂循环，然后取出数组中“最小的”TimerTask进行执行。
 2. 缺点：
    - 单线程，因此速度会很慢哦！
@@ -106,10 +106,13 @@
 
 
 
+
+
 # **Semaphore**
 
 1. 信号量
-2. 在NettyRemotingAbstract中会用到Semaphore
+2. 在NettyRemotingAbstract中会用到Semaphore。
+   - 比如说在invokeAsyncImpl中进行流量的控制。
 
 
 
